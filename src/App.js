@@ -8,16 +8,59 @@ class App extends Component {
         super();
 
         this.state = {
-            lista: []
+            lista: [],
+            nome: '',
+            email: '',
+            senha: ''
         };
+
+        this.enviaForm = this.enviaForm.bind(this);
+
+        this.setNome = this.setNome.bind(this);
+        this.setEmail = this.setEmail.bind(this);
+        this.setSenha = this.setSenha.bind(this);
     }
 
     componentDidMount() {
         console.log('componentDidlMount')
+
+        return
         fetch('http://cdc-react.herokuapp.com/api/autores')
-            .then(res => res.json())
-            .then(autores => this.setState({ lista: autores }))
+            .then(res => res.ok ? res.json() : Promise.reject(res.statusText))
+            .then(autores =>{
+                console.log('autores', autores)
+                this.setState({ lista: autores })
+            })
             .catch(console.error)
+    }
+
+    enviaForm(evento) {
+        evento.preventDefault();
+
+        const options = {
+            method: "POST",
+            body: JSON.stringify({ nome: this.state.nome, email: this.state.email, senha: this.state.senha })
+        };
+
+        console.log(options)
+
+        return
+        fetch('http://cdc-react.herokuapp.com/api/autores', options)
+            .then(res => console.log('res', { res }))
+            .catch(console.error);
+
+    }
+
+    setNome(evento) {
+        this.setState({ nome: evento.target.value });
+    }
+
+    setEmail(evento){
+        this.setState({ email: evento.target.value });
+    }
+
+    setSenha(evento) {
+        this.setState({ senha: evento.target.value });
     }
 
     render() {
@@ -46,18 +89,18 @@ class App extends Component {
 
                     <div className="content" id="content">
                         <div className="pure-form pure-form-aligned">
-                            <form className="pure-form pure-form-aligned">
+                            <form className="pure-form pure-form-aligned" onSubmit={this.enviaForm} method="post">
                                 <div className="pure-control-group">
                                     <label htmlFor="nome">Nome</label>
-                                    <input id="nome" type="text" name="nome" value=""  />
+                                    <input id="nome" type="text" name="nome" value={this.state.nome} onChange={this.setNome} />
                                 </div>
                                 <div className="pure-control-group">
                                     <label htmlFor="email">Email</label>
-                                    <input id="email" type="email" name="email" value=""  />
+                                    <input id="email" type="email" name="email" value={this.state.email} onChange={this.setEmail} />
                                 </div>
                                 <div className="pure-control-group">
                                     <label htmlFor="senha">Senha</label>
-                                    <input id="senha" type="password" name="senha"  />
+                                    <input id="senha" type="password" name="senha" value={this.state.senha} onChange={this.setSenha} />
                                 </div>
                                 <div className="pure-control-group">
                                     <label></label>
