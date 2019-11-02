@@ -39,14 +39,17 @@ class App extends Component {
 
         const options = {
             method: "POST",
-            body: JSON.stringify({ nome: this.state.nome, email: this.state.email, senha: this.state.senha })
+            body: JSON.stringify({ nome: this.state.nome, email: this.state.email, senha: this.state.senha }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         };
 
-        console.log(options)
-
-        return
         fetch('http://cdc-react.herokuapp.com/api/autores', options)
-            .then(res => console.log('res', { res }))
+            .then(res => res.json())
+            .then(lista => {
+                this.setState({ lista })
+            })
             .catch(console.error);
 
     }
