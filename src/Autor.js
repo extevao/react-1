@@ -6,7 +6,7 @@ import InputCustomizado from './componentes/InputCustomizado'
 import BotaoSubmitCustomizado from './componentes/BotaoSubmitCustomizado'
 
 
-export class AutorBox extends Component {
+export default class AutorBox extends Component {
 
     constructor() {
         super();
