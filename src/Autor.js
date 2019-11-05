@@ -4,6 +4,7 @@
 import React, { Component } from 'react'
 import InputCustomizado from './componentes/InputCustomizado'
 import BotaoSubmitCustomizado from './componentes/BotaoSubmitCustomizado'
+import PubSub from 'pubsub-js'
 
 
 export default class AutorBox extends Component {
@@ -21,7 +22,7 @@ export default class AutorBox extends Component {
 
     componentDidMount() {
         console.log('componentDidlMount')
-        return
+
         fetch('http://cdc-react.herokuapp.com/api/autores')
             .then(res => res.ok ? res.json() : Promise.reject(res.statusText))
             .then(autores =>{
@@ -29,6 +30,10 @@ export default class AutorBox extends Component {
                 this.setState({ lista: autores })
             })
             .catch(console.error)
+
+        PubSub.subscribe('atualiza-lista-autores', (topico, novaListagem) => {
+            this.setState({ lista: novaListagem })
+        })
     }
     atualizaListagem(novaLista) {
         this.setState({ lista: novaLista })
@@ -37,7 +42,7 @@ export default class AutorBox extends Component {
     render() {
         return (
             <div>
-                <FormularioAutor callbackAtualizaListagem={this.atualizaListagem} />
+                <FormularioAutor  />
                 <TabelaAutores lista={this.state.lista}/>
             </div>
         );
@@ -77,7 +82,8 @@ class FormularioAutor extends Component {
         fetch('http://cdc-react.herokuapp.com/api/autores', options)
             .then(res => res.json())
             .then(lista => {
-                this.props.callbackAtualizaListagem(lista)
+                //disparar aviso
+                PubSub.publish('atualiza-lista-autores', lista)
             })
             .catch(console.error);
 
