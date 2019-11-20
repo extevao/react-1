@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import InputCustomizado from './componentes/InputCustomizado'
 import BotaoSubmitCustomizado from './componentes/BotaoSubmitCustomizado'
 import PubSub from 'pubsub-js'
-
+import TratadorErros from './TratadorErros'
 
 export default class AutorBox extends Component {
 
@@ -22,7 +22,7 @@ export default class AutorBox extends Component {
 
     componentDidMount() {
         console.log('componentDidlMount')
-
+        return
         fetch('http://cdc-react.herokuapp.com/api/autores')
             .then(res => res.ok ? res.json() : Promise.reject(res.statusText))
             .then(autores =>{
@@ -79,13 +79,24 @@ class FormularioAutor extends Component {
             }
         };
 
+        PubSub.publish('limpa-erros')
+
         fetch('http://cdc-react.herokuapp.com/api/autores', options)
-            .then(res => res.json())
+            .then(async res => res.ok ? res.json() : Promise.reject(await res.json()))
             .then(lista => {
                 //disparar aviso
                 PubSub.publish('atualiza-lista-autores', lista)
+                this.setState({
+                    nome: '',
+                    email: '',
+                    senha: ''
+                })
             })
-            .catch(console.error);
+            .catch(resposta => {
+                if (resposta.status === 400) {
+                    new TratadorErros().publicaErros(resposta)
+                }
+            });
 
     }
 
